@@ -1,0 +1,143 @@
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+  <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<style>
+      .panel > .panel-heading {
+          background-image: none;
+          background-color: #006666;
+          color: white;
+          border: 1px solid #006666; 
+      }
+
+      .panel {
+          border: 1px solid #006666;
+      }
+</style>
+
+<body>
+    <div ng-app="myApp" ng-controller="myCtrl" style="margin-left:10%;margin-right:10%;margin-top:50px;width:80%" >
+
+        <h1 style="text-align:center;font-size:450%;font-family:'Times New Roman'" >New Survey</h1>
+        <br>
+        <br>
+        <div class="form-group">
+            <label for="usr">Survey Title:</label>
+            <input type="text" class="form-control" id="title" ng-model="title" placeholder="Enter Title">
+            <label for="usr">Survey Status:</label>
+            <input type="text" class="form-control" id="status" ng-model="status" placeholder="active/deactive">
+        </div>
+        <div class="form-group">
+            <button type="button"  data-toggle="dropdown" class="btn btn-block btn-primary dropdown-toggle">    
+                Add Question <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" > 
+                <li>
+                    <input type="text" class="form-control" id="question" ng-model="question" placeholder="Enter Question">
+                </li>
+                <li>
+                    <input type="text" class="form-control" id="op1" ng-model="op1" placeholder="Option 1">
+                </li>
+                <li>
+                    <input type="text" class="form-control" id="op2" ng-model="op2" placeholder="Option 2">
+                </li>
+                <li>
+                    <input type="text" class="form-control" id="op3" ng-model="op3" placeholder="Option 3">
+                </li>
+                <li>
+                    <input type="text" class="form-control" id="op4" ng-model="op4" placeholder="Option 4">
+                </li>
+                <li> 
+                    <button type="button" class="btn btn-block btn-link" ng-click="add_question()">Add Question</button> 
+                </li>
+            </ul>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-block btn-success" ng-click="create_survey()">    
+                Create Survey <span class="caret"></span>
+            </button>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    var app = angular.module('myApp', ['ui.bootstrap']);
+    app.controller('myCtrl', function($scope, $http, $timeout, $interval, $q) {
+        $scope.service_url = "http://127.0.0.1/api/v1/";
+        $scope.token = localStorage.getItem("token")
+        if ($scope.token == null){
+            $scope.token = ""
+        }
+        $scope.disription = []
+        $scope.ques = {}
+        $scope.create_survey = function() {
+            $http(
+                {
+                    url: $scope.service_url + "survey/",
+                    method: 'POST',
+                    params:{
+                        Token : $scope.token
+                    },
+                    data: {
+                        Title : $scope.title,
+                        Status : $scope.status,
+                        Discription: $scope.disription
+                    }
+                }
+            ).then(
+                function(response) {
+                    alert(response.data.message)
+                    window.location.href = "surveyslist.html";
+                },
+                function(response) {
+                    alert(response.data.message)
+                }     
+            )
+        }
+
+        $scope.add_question = function(){
+            $scope.ques.Question = $scope.question
+            $scope.ques.Options = []
+            if ($scope.op1 != null){
+                $scope.ques.Options.push($scope.op1)
+            }
+            if ($scope.op2 != null){
+                $scope.ques.Options.push($scope.op2)
+            }
+            if ($scope.op3 != null){
+                $scope.ques.Options.push($scope.op3)
+            }
+            if ($scope.op4 != null){
+                $scope.ques.Options.push($scope.op4)
+            }
+            $scope.updatelist(angular.copy($scope.ques))
+            console.log($scope.ques,$scope.disription)
+            $scope.question = null
+            $scope.op1 = null
+            $scope.op2 = null
+            $scope.op3 = null
+            $scope.op4 = null
+        }
+
+        $scope.updatelist = function(x){
+            $scope.disription.push(x)
+        }
+
+
+    })
+</script> 
+
+</html>

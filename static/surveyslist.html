@@ -1,0 +1,149 @@
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-animate.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.1/angular-sanitize.js"></script>
+  <script src="https://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-2.5.0.js"></script>
+  <link href="https://netdna.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<style>
+      .panel > .panel-heading {
+          background-image: none;
+          background-color: #006666;
+          color: white;
+          border: 1px solid #006666; 
+      }
+
+      .panel {
+          border: 1px solid #006666;
+      }
+</style>
+
+<body>
+    <div ng-app="myApp" ng-controller="myCtrl" style="margin-left:10%;margin-right:10%;margin-top:50px;width:80%" >
+        
+        <h1 style="text-align:center;font-size:450%;font-family:'Times New Roman'" >Survey Service</h1>
+        <br>
+        <br>
+        <div class="col-sm-6">
+            <h1 style="text-align:center;font-size:250%;font-family:'Times New Roman'" >Survey list</h1>
+            <table class="table table-bordered">
+                <thead>
+                        <tr>
+                                <th>Surveys</th>	
+                        </tr>
+                </thead>
+                <tbody ng-repeat="x in active_survey">
+                    <tr>
+                        <td>
+                            <button type="button" class="btn btn-link" ng-click="take_survey(x._id)">
+                                    {{x.title}}
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <br><br>
+            <button type="button" class="btn btn-block btn-primary" ng-click="create_new_survey()">    
+                Create New Survey 
+            </button>
+            <br>
+            <button type="button" class="btn btn-block btn-primary" ng-click="user_taken_surveys()">    
+                Your Response
+            </button>
+        </div>
+        <div class="col-sm-6">
+            <br><br>
+            <h3 align="center"> <b>Username : {{userinfo.username}}</b> </h3>
+			<h3 align="center"><b>Alias : {{userinfo.alias}}</b></h3>
+            <button type="button" class="btn btn-block btn-danger" ng-click="logout()">    
+                Log Out 
+            </button>
+        </div>
+    </div>
+</body>
+
+
+<script>
+    var app = angular.module('myApp', ['ui.bootstrap']);
+    app.controller('myCtrl', function($scope, $http, $timeout, $interval, $q) {
+        $scope.service_url = "http://127.0.0.1/api/v1/";
+        $scope.active_survey = []
+        $scope.userinfo = {}
+        $scope.token = localStorage.getItem("token")
+        if ($scope.token == null){
+            $scope.token = ""
+        }
+        $scope.get_active_survey = function() {
+            $http(
+                {
+                    url: $scope.service_url + 'survey/',
+                    method: 'GET',
+                    params: {
+                        Token : $scope.token
+                    }
+                }
+            ).then(
+                function (response) {
+                    console.log(response.data.responseData)
+                    $scope.active_survey = response.data.responseData
+                },
+                function(response) {
+                    alert(response.data.message)
+                } 
+            )
+        }
+
+        $scope.get_userinfo = function() {
+            $http(
+                {
+                    url: $scope.service_url + 'validate/',
+                    method: 'GET',
+                    params: {
+                        Token : $scope.token
+                    }
+                }
+            ).then(
+                function (response) {
+                    console.log(response.data.responseData)
+                    $scope.userinfo = response.data.responseData
+                    $scope.get_active_survey()
+                },
+                function(response) {
+                    alert(response.data.message)
+                } 
+            )
+        }
+
+        $scope.take_survey = function(x) {
+            localStorage.setItem("my_survey_id",x)
+            window.location.href = "takesurvey.html";
+        }
+
+        $scope.create_new_survey = function(){
+            window.location.href = "createsurvey.html"
+        }
+
+        $scope.logout = function(){
+            localStorage.removeItem("token")
+            window.location.href = "index.html";
+        }
+
+        $scope.user_taken_surveys = function(){
+            window.location.href = "yourresponse.html"
+        }
+        
+        $scope.get_userinfo()
+
+    })
+</script> 
+
+</html>
